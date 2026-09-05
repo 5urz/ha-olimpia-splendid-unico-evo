@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Device ID / Local Key guide
+    url: https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/docs/GETTING_KEYS.md
+    about: Read the guide before opening an issue about obtaining the local device credentials.
