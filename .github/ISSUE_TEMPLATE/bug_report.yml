@@ -1,0 +1,85 @@
+name: Bug report
+description: Report a reproducible problem with the Olimpia Splendid UNICO integration
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem.
+
+        **Do not post your Local Key, Device ID, account credentials, tokens, or other secrets.**
+        Please review logs before attaching them and remove sensitive values.
+
+  - type: input
+    id: integration_version
+    attributes:
+      label: Integration version
+      description: Example: 0.4.8
+      placeholder: 0.4.8
+    validations:
+      required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: 2026.8.x
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: UNICO model
+      description: Exact model designation if known.
+      placeholder: UNICO EVO 25 HP PVAN (02455)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Does the integration connect to the device?
+      options:
+        - "Yes"
+        - "No"
+        - "Intermittently"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: |
+        Paste only the relevant excerpt. Remove Local Key, Device ID, credentials, tokens and other secrets first.
+      render: text
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sensitive data check
+      options:
+        - label: I have checked the issue text and logs and removed Local Key, Device ID, credentials, tokens and other secrets.
+          required: true
