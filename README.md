@@ -14,7 +14,14 @@ Bisher hauptsächlich getestet mit:
 - interner Gerätecode **02455**
 - lokaler Kommunikation über **Tuya LAN 3.4**
 
-Andere UNICO-Modelle können funktionieren, sind derzeit aber **nicht bestätigt**.
+### Modell-Kompatibilität
+
+- **Getestet:** UNICO EVO 25 HP PVAN (02455)
+- **Wahrscheinlich kompatibel:** aktuelle **OS Home**-Modelle der Reihen UNICO EVO, UNICO NEXT und UNICO PRO
+- **Experimentell:** UNICO VERTICAL / VERTICAL-NK
+- **Nicht kompatibel:** ältere Geräte mit dem WLAN-Nachrüstmodul **B1015** bzw. der früheren UNICO-WLAN-Plattform
+
+Die Einschätzung für weitere Modelle basiert auf der gemeinsamen OS-Home-/Tuya-Plattform und bekannten ähnlichen Datenpunkt-Schemata. Sie ist keine Garantie; außer dem 02455 wurden diese Modelle mit dieser Integration bislang nicht praktisch verifiziert.
 
 ## Unterstützte Funktionen
 
