@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Home Assistant local/dev files
+.homeassistant/
+config/
+.storage/
+**/.storage/
+*.log
+home-assistant_v2.db*
+
+# Secrets and local device data
+secrets.yaml
+.env
+.env.*
+*.key
+*local_key*
+*device_key*
+devices.json
+credentials.json
+
+# Backups / archives / build output
+*.zip
+*.tar
+*.tar.gz
+*.backup
+dist/
+build/
