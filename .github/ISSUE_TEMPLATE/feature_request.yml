@@ -1,0 +1,49 @@
+name: Feature request
+description: Suggest a new feature, device capability, or compatibility improvement
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggestions for additional UNICO models, controls, sensors and onboarding improvements are welcome.
+
+        **Do not include Local Key, Device ID, account credentials, tokens or other secrets.**
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Requested feature
+      description: What would you like the integration to support?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Why would this be useful and how should it behave in Home Assistant?
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: UNICO model
+      description: If the request is model-specific, enter the exact model designation.
+      placeholder: UNICO EVO 25 HP PVAN (02455)
+
+  - type: textarea
+    id: observations
+    attributes:
+      label: Additional technical observations
+      description: Optional observations from the official app, remote control, BLE setup or local behavior. Do not include secrets.
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sensitive data check
+      options:
+        - label: I have not included Local Key, Device ID, credentials, tokens or other secrets.
+          required: true
