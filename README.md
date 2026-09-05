@@ -1,4 +1,4 @@
-# Olimpia Splendid UNICO – Home Assistant Custom Integration v0.4.8
+# Olimpia Splendid UNICO – Home Assistant Custom Integration v0.4.9
 
 Lokale Home-Assistant-Integration für den getesteten **Olimpia Splendid UNICO EVO 25 HP PVAN (02455)** über Tuya LAN 3.4.
 
@@ -33,6 +33,17 @@ Die Einschätzung für weitere Modelle basiert auf der gemeinsamen OS-Home-/Tuya
 - Eco / Silent / Eco + Silent
 - Diagnose- und interne Sensordaten
 - lokale Statusabfrage und Wiederverbindungslogik
+
+## Änderungen in v0.4.9
+
+- Device ID wird in Home-Assistant-Geräte-Identifiern und Entity-Unique-IDs durch einen stabilen SHA-256-basierten Fingerprint ersetzt.
+- Bestehende Config Entries der Version 1 werden beim Start auf die neuen Identifier migriert.
+- Host, Device ID und Local Key werden in Home-Assistant-Diagnosedaten redigiert.
+- Debug-Logging wurde hinsichtlich lokaler Adressdaten reduziert.
+- `.gitignore`, Issue-Templates und Dokumentation wurden für den öffentlichen Betrieb gehärtet.
+- HACS- und Hassfest-Validierung für das öffentliche Repository eingerichtet.
+- Repository-Links auf `ha-olimpia-splendid-unico-evo` aktualisiert.
+- Modell-Kompatibilität in der Dokumentation genauer eingeordnet.
 
 ## Device ID, Local Key und Datenschutz
 
