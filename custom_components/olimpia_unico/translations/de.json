@@ -1,0 +1,49 @@
+{
+  "title": "Olimpia Splendid UNICO",
+  "config": {
+    "step": {
+      "user": {
+        "title": "UNICO EVO lokal verbinden",
+        "description": "Verbindung direkt über das lokale Tuya-LAN-Protokoll 3.4. Die OS-Home-Cloud wird für den normalen Betrieb nicht benötigt.",
+        "data": {
+          "host": "IP-Adresse oder Hostname",
+          "device_id": "Tuya Device ID",
+          "local_key": "Tuya Local Key"
+        },
+        "data_description": {
+          "host": "Lokale Adresse des UNICO. Eine DHCP-Reservierung wird empfohlen.",
+          "device_id": "Device ID aus der eigenen OS-Home-Einrichtung.",
+          "local_key": "Local Key des eigenen Geräts. Diesen Wert geheim halten."
+        }
+      },
+      "reconfigure": {
+        "title": "UNICO-Verbindung neu konfigurieren",
+        "description": "Netzwerkadresse oder Local Key aktualisieren. Die Device ID ist die stabile Gerätekennung und kann hier nicht geändert werden.",
+        "data": {
+          "host": "IP-Adresse oder Hostname",
+          "local_key": "Neuer Tuya Local Key"
+        },
+        "data_description": {
+          "host": "Aktuelle lokale Adresse des UNICO.",
+          "local_key": "Leer lassen, um den aktuell gespeicherten Local Key beizubehalten."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen. Netzwerkadresse, Device ID und Local Key prüfen und OS Home testweise schließen.",
+      "unknown": "Unerwarteter Fehler. Details stehen im Home-Assistant-Protokoll."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits eingerichtet.",
+      "reconfigure_successful": "Die UNICO-Verbindungseinstellungen wurden erfolgreich aktualisiert."
+    }
+  },
+  "exceptions": {
+    "reconnect_backoff": {
+      "message": "Der UNICO stellt die Verbindung gerade neu her. Bitte kurz warten und erneut versuchen."
+    },
+    "communication_failed": {
+      "message": "Die Kommunikation mit dem UNICO ist fehlgeschlagen."
+    }
+  }
+}

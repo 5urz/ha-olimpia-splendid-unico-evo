@@ -1,0 +1,49 @@
+{
+  "title": "Olimpia Splendid UNICO",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect UNICO EVO locally",
+        "description": "Connect directly using the local Tuya LAN protocol 3.4. The OS Home cloud is not required for normal operation.",
+        "data": {
+          "host": "IP address or hostname",
+          "device_id": "Tuya Device ID",
+          "local_key": "Tuya Local Key"
+        },
+        "data_description": {
+          "host": "Local address of the UNICO. A DHCP reservation is recommended.",
+          "device_id": "Device ID obtained from your own OS Home setup.",
+          "local_key": "Local Key obtained from your own device. Keep this value secret."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure UNICO connection",
+        "description": "Update the network address or Local Key. The Device ID is the stable device identity and cannot be changed here.",
+        "data": {
+          "host": "IP address or hostname",
+          "local_key": "New Tuya Local Key"
+        },
+        "data_description": {
+          "host": "Current local address of the UNICO.",
+          "local_key": "Leave empty to keep the currently stored Local Key."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connection failed. Check the network address, Device ID and Local Key; temporarily close OS Home if necessary.",
+      "unknown": "Unexpected error. See the Home Assistant log for details."
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "reconfigure_successful": "The UNICO connection settings were updated successfully."
+    }
+  },
+  "exceptions": {
+    "reconnect_backoff": {
+      "message": "The UNICO is currently reconnecting. Try again shortly."
+    },
+    "communication_failed": {
+      "message": "Communication with the UNICO failed."
+    }
+  }
+}
