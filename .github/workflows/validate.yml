@@ -1,0 +1,83 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  validate-hacs-structure:
+    name: HACS structure preflight
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Validate HACS files and integration layout
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          hacs_path = root / 'hacs.json'
+          custom_components = root / 'custom_components'
+          brand_icon = root / 'brand' / 'icon.png'
+
+          if not hacs_path.is_file():
+              raise SystemExit('Missing hacs.json in repository root')
+          hacs = json.loads(hacs_path.read_text(encoding='utf-8'))
+          if not isinstance(hacs, dict) or not isinstance(hacs.get('name'), str) or not hacs['name'].strip():
+              raise SystemExit("hacs.json must be an object with a non-empty 'name'")
+
+          integrations = [p for p in custom_components.iterdir() if p.is_dir()] if custom_components.is_dir() else []
+          if len(integrations) != 1:
+              raise SystemExit(f'Expected exactly one integration under custom_components/, found {len(integrations)}')
+
+          manifest_path = integrations[0] / 'manifest.json'
+          if not manifest_path.is_file():
+              raise SystemExit(f'Missing {manifest_path}')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          required = {'domain', 'documentation', 'issue_tracker', 'codeowners', 'name', 'version'}
+          missing = sorted(required - manifest.keys())
+          if missing:
+              raise SystemExit(f"manifest.json missing required keys: {', '.join(missing)}")
+          if manifest.get('domain') != integrations[0].name:
+              raise SystemExit('manifest domain does not match integration directory name')
+
+          if not brand_icon.is_file():
+              raise SystemExit('Missing brand/icon.png in repository root')
+
+          print('HACS structure preflight passed')
+          PY
+
+  validate-hacs:
+    name: HACS validation
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: HACS validation
+        uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
+        with:
+          category: integration
+
+  validate-hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Hassfest validation
+        uses: home-assistant/actions/hassfest@a7c616ce81ccda50150bf1595786c71b1883fabb
