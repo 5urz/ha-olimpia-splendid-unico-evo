@@ -1,136 +1,239 @@
-# Olimpia Splendid UNICO – Home Assistant Custom Integration v0.4.9
+# Olimpia Splendid UNICO — Home Assistant Custom Integration
 
-Lokale Home-Assistant-Integration für den getesteten **Olimpia Splendid UNICO EVO 25 HP PVAN (02455)** über Tuya LAN 3.4.
+An unofficial Home Assistant custom integration for local control and monitoring of compatible **Olimpia Splendid UNICO** air-conditioning units that expose a **Tuya LAN 3.4** interface.
 
-> **Unofficial community project:** This project is not affiliated with, endorsed by, or supported by Olimpia Splendid S.p.A.
+The implementation has been empirically validated on an **Olimpia Splendid UNICO EVO 25 HP PVAN (internal code 02455)**. During normal operation, communication between Home Assistant and the air conditioner is performed on the local network; the integration does not require the OS Home cloud once the device address, Tuya Device ID, and Tuya Local Key are available.
 
-## Status
+> [!IMPORTANT]
+> This is an independent community project. It is not affiliated with, endorsed by, or supported by Olimpia Splendid S.p.A.
 
-Diese Version ist ein **früher öffentlicher Entwicklungsstand / Public Beta**.
+## Project status
 
-Bisher hauptsächlich getestet mit:
+The integration is currently a **public beta**. Its core climate-control functions are operational on the reference device, but the project should still be considered experimental outside that tested configuration.
 
-- **Olimpia Splendid UNICO EVO 25 HP PVAN**
-- interner Gerätecode **02455**
-- lokaler Kommunikation über **Tuya LAN 3.4**
+| Parameter | Current project state |
+|---|---|
+| Integration domain | `olimpia_unico` |
+| Integration type | Home Assistant device integration |
+| I/O model | Local polling |
+| Local protocol | Tuya LAN 3.4 |
+| Python dependency | `tinytuya==1.20.0` |
+| Reference device | UNICO EVO 25 HP PVAN (02455) |
+| Reference OS Home version used during analysis | 2.0.7 |
+| HACS-declared minimum Home Assistant version | 2026.8.0 |
 
-### Modell-Kompatibilität
+### Evidence terminology
 
-- **Getestet:** UNICO EVO 25 HP PVAN (02455)
-- **Wahrscheinlich kompatibel:** aktuelle **OS Home**-Modelle der Reihen UNICO EVO, UNICO NEXT und UNICO PRO
-- **Experimentell:** UNICO VERTICAL / VERTICAL-NK
-- **Nicht kompatibel:** ältere Geräte mit dem WLAN-Nachrüstmodul **B1015** bzw. der früheren UNICO-WLAN-Plattform
+Compatibility and diagnostic interpretations in this document are deliberately classified by evidence level. The terms **verified**, **inferred**, **experimental**, and **unknown** describe the present engineering evidence available to this project; they are not manufacturer statements.
 
-Die Einschätzung für weitere Modelle basiert auf der gemeinsamen OS-Home-/Tuya-Plattform und bekannten ähnlichen Datenpunkt-Schemata. Sie ist keine Garantie; außer dem 02455 wurden diese Modelle mit dieser Integration bislang nicht praktisch verifiziert.
+For diagnostic datapoints, the confidence labels are qualitative engineering assessments rather than statistical confidence intervals:
 
-## Unterstützte Funktionen
+- **Very high:** repeatedly observed behavior is strongly and consistently associated with the stated quantity.
+- **High:** observed behavior is consistent and the interpretation is well supported, but not independently documented by the manufacturer.
+- **Moderate:** the interpretation is plausible and supported by observations, but has not been isolated sufficiently for a stronger assignment.
+- **Low:** tentative interpretation; additional controlled observations are required.
+- **Unknown:** no reliable semantic assignment has yet been established.
 
-- Ein / Aus
-- Kühlen / Heizen / Automatik / Entfeuchten / Nur Lüften
-- Solltemperatur und aktuelle Raumtemperatur
-- Lüfter Auto / Niedrig / Mittel / Hoch
-- Oszillation
-- Eco / Silent / Eco + Silent
-- Diagnose- und interne Sensordaten
-- lokale Statusabfrage und Wiederverbindungslogik
+## Device compatibility
 
-## Änderungen in v0.4.9
+Only the reference device has been extensively tested with this integration. Compatibility statements for other product families are therefore provisional.
 
-- Device ID wird in Home-Assistant-Geräte-Identifiern und Entity-Unique-IDs durch einen stabilen SHA-256-basierten Fingerprint ersetzt.
-- Bestehende Config Entries der Version 1 werden beim Start auf die neuen Identifier migriert.
-- Host, Device ID und Local Key werden in Home-Assistant-Diagnosedaten redigiert.
-- Debug-Logging wurde hinsichtlich lokaler Adressdaten reduziert.
-- `.gitignore`, Issue-Templates und Dokumentation wurden für den öffentlichen Betrieb gehärtet.
-- HACS- und Hassfest-Validierung für das öffentliche Repository eingerichtet.
-- Repository-Links auf `ha-olimpia-splendid-unico-evo` aktualisiert.
-- Modell-Kompatibilität in der Dokumentation genauer eingeordnet.
+| Device / platform | Assessment | Basis |
+|---|---|---|
+| **UNICO EVO 25 HP PVAN (02455)** | **Verified** | Direct functional testing on the physical reference device |
+| Other current **OS Home-based UNICO EVO, UNICO NEXT, and UNICO PRO** models | **Candidate; unverified** | Shared OS Home / Tuya platform and apparently related datapoint structures; not yet validated by this project |
+| **UNICO VERTICAL / VERTICAL-NK** | **Experimental candidate** | Architectural similarity; no project-level functional validation yet |
+| Older devices using the **B1015 Wi-Fi retrofit module** or the earlier UNICO Wi-Fi platform | **Not supported by this implementation** | Different communication platform from the Tuya LAN 3.4 interface targeted here |
 
-## Device ID, Local Key und Datenschutz
+A model should not be reported as compatible solely because it can be configured in OS Home. Reliable compatibility requires confirmation of the local protocol version, datapoint schema, and command semantics on the physical device.
 
-Für die lokale Verbindung benötigt die Integration IP-Adresse, **Device ID** und **Local Key** des eigenen UNICO. Device ID und Local Key müssen derzeit vom Benutzer selbst ermittelt werden. Eine Schritt-für-Schritt-Beschreibung befindet sich in [`docs/GETTING_KEYS.md`](docs/GETTING_KEYS.md); das experimentelle Frida-Hilfsskript liegt unter `tools/oshome_key.js`.
+## Functional scope
+
+The following functions are implemented for the reference device:
+
+- power control;
+- HVAC modes: **Auto, Cool, Heat, Dry, and Fan only**;
+- target-temperature control and current room-temperature reporting;
+- fan modes: **Auto, Low, Medium, and High**;
+- oscillation / swing control;
+- **Eco**, **Silent**, and combined **Eco + Silent** operation;
+- display control;
+- internal diagnostic sensors;
+- communication-health sensors and reconnect handling;
+- local status polling.
+
+### Home Assistant entities
+
+The integration exposes one climate entity together with optional switch and diagnostic sensor entities. Diagnostic entities are disabled by default where appropriate because several datapoints are intended primarily for technical investigation rather than routine automation.
+
+## Communication architecture
+
+The integration communicates directly with the device through the local Tuya protocol using TinyTuya. No manufacturer API is called by the integration during normal runtime operation.
+
+The current implementation uses:
+
+- **Tuya protocol version:** 3.4;
+- **default polling interval:** 60 s;
+- **socket timeout:** 8 s;
+- bounded socket retry behavior rather than an aggressive retry loop;
+- a **45 s reconnect backoff** after communication failure;
+- a persistent Tuya client during normal operation;
+- a preventive client-session rotation once per day at 10:00 Home Assistant local time, but only when the latest known device state indicates that the unit is switched off.
+
+These parameters are implementation details chosen after practical stability testing with the reference Wi-Fi module. They should not be interpreted as requirements of the Olimpia Splendid product itself.
+
+## Implemented Tuya datapoint mapping
+
+The table below describes the datapoint assignments currently used by the integration. It documents the software mapping, not an official manufacturer protocol specification.
+
+| DP | Function used by the integration | Representation |
+|---:|---|---|
+| 1 | Power | Boolean |
+| 2 | Target temperature | Numeric, °C |
+| 3 | Current room temperature | Numeric, °C |
+| 4 | Operating mode | `auto`, `cool`, `heat`, `dehum`, `fan` |
+| 5 | Fan mode | `auto`, `low`, `middle`, `high` |
+| 8 | Eco mode | Boolean |
+| 15 | Swing / oscillation | `ON` / `OFF` |
+| 19 | Temperature-unit information | Diagnostic value |
+| 22 | Device error code | Diagnostic value |
+| 25 | Silent mode | Boolean |
+| 36 | Display | Boolean |
+
+## Device credentials and security model
+
+Local Tuya communication requires three device-specific values:
+
+1. the local IP address or hostname;
+2. the **Tuya Device ID**;
+3. the **Tuya Local Key**.
+
+The Device ID and Local Key currently have to be obtained by the user. The procedure used during development is documented in [`docs/GETTING_KEYS.md`](docs/GETTING_KEYS.md), and the associated experimental Frida helper is provided as [`tools/oshome_key.js`](tools/oshome_key.js).
 
 > [!WARNING]
-> Der Local Key ist ein Zugangsschlüssel zum eigenen Gerät. **Device ID und Local Key nicht in Issues, Logs, Screenshots oder Foren veröffentlichen.** Die Anleitung ist ausschließlich für den eigenen Account und das eigene Gerät gedacht.
+> Treat the **Local Key as a device credential**. Do not publish Local Keys, Device IDs, account credentials, tokens, or unreviewed debug logs in GitHub issues, screenshots, forum posts, or other public material.
 
-Die Integration speichert Device ID und Local Key im normalen Home-Assistant-Config-Entry, weil beide Werte für die lokale Tuya-Kommunikation benötigt werden. Home-Assistant-Konfigurationsdateien unter `.storage/` und vollständige Konfigurations-Backups können daher Zugangsdaten enthalten. Diese Dateien nicht veröffentlichen oder an Issues anhängen und Backups geschützt bzw. verschlüsselt aufbewahren.
+The integration necessarily stores the Device ID and Local Key in the Home Assistant config entry because both values are required for local Tuya communication. Consequently, Home Assistant files under `.storage/` and complete Home Assistant backups may contain sensitive credentials and should be protected accordingly.
 
-In Home-Assistant-Geräte-Identifiern und Entity-Unique-IDs verwendet die Integration statt der echten Device ID einen stabilen SHA-256-basierten Fingerprint. Diagnosedaten redigieren Host, Device ID und Local Key.
+To reduce unnecessary exposure:
 
-**Debug-Hinweis:** Rohes TinyTuya-Debug-Logging kann Protokoll- und Gerätedaten enthalten. TinyTuya-Debug-Logs deshalb niemals ungeprüft veröffentlichen; vor dem Teilen immer auf IP-Adressen, Device IDs, Local Keys, Tokens und andere Zugangsdaten prüfen und diese redigieren.
+- Home Assistant device identifiers and entity unique IDs use a stable SHA-256-based fingerprint instead of the raw Device ID;
+- Home Assistant diagnostics redact the host, Device ID, and Local Key;
+- the issue template explicitly requires users to remove secrets before submitting logs;
+- repository ignore rules exclude common Home Assistant configuration, credential, key, and log files.
+
+Raw TinyTuya debug output can still contain protocol or device metadata. Debug logs must therefore be reviewed and redacted before publication.
+
+Security-sensitive findings should be reported according to [`SECURITY.md`](SECURITY.md), not disclosed in a public issue.
 
 ## Installation
 
-### Manuelle Installation
+### HACS as a custom repository
 
-1. Dieses Repository herunterladen oder klonen.
-2. `custom_components/olimpia_unico/` nach `/config/custom_components/olimpia_unico/` kopieren.
-3. Home Assistant vollständig neu starten.
-4. **Einstellungen → Geräte & Dienste → Integration hinzufügen** öffnen.
-5. Nach **Olimpia Splendid UNICO** suchen.
-6. IP-Adresse, Device ID und Local Key eintragen.
-7. Die Integration prüft anschließend die lokale Verbindung zum Gerät.
+Until or unless this project is distributed through another HACS channel, it can be installed as a custom repository:
 
-### Upgrade
+1. Open **HACS → Integrations**.
+2. Open the HACS menu and select **Custom repositories**.
+3. Add `https://github.com/5urz/ha-olimpia-splendid-unico-evo` as an **Integration** repository.
+4. Install **Olimpia Splendid UNICO**.
+5. Restart Home Assistant.
+6. Open **Settings → Devices & services → Add integration**.
+7. Search for **Olimpia Splendid UNICO** and enter the device address, Device ID, and Local Key.
 
-Bei einem Upgrade den vorhandenen Ordner `/config/custom_components/olimpia_unico/` durch die neue Version ersetzen und Home Assistant anschließend neu starten. Der bestehende Config-Eintrag kann normalerweise erhalten bleiben. Für den normalen Betrieb ist **kein Debug-Logging** erforderlich.
+### Manual installation
 
-## Netzwerk-Hinweis
+1. Download or clone this repository.
+2. Copy `custom_components/olimpia_unico/` to `/config/custom_components/olimpia_unico/` in the Home Assistant configuration directory.
+3. Restart Home Assistant completely.
+4. Open **Settings → Devices & services → Add integration**.
+5. Search for **Olimpia Splendid UNICO**.
+6. Enter the local IP address or hostname, Device ID, and Local Key.
+7. The config flow validates local communication before creating the integration entry.
 
-Da die Integration lokal mit der IP-Adresse des Geräts arbeitet, ist eine **DHCP-Reservierung** im Router empfehlenswert.
+### Updating
 
-## Entstehung der Integration
+For a manual update, replace the existing `/config/custom_components/olimpia_unico/` directory with the version from the new release and restart Home Assistant. Existing configuration entries are designed to be retained across normal upgrades.
 
-Diese Integration ist im Rahmen eines privaten Reverse-Engineering-Projekts entstanden. Die Analyse, Entwicklung und schrittweise Umsetzung wurden gemeinsam mit **ChatGPT** durchgeführt. Ziel war eine vollständig lokale Home-Assistant-Anbindung ohne Abhängigkeit von der Hersteller-Cloud im laufenden Betrieb.
+Debug logging is not required for routine operation.
 
-Zur Untersuchung wurden unter anderem Android Studio / Android Emulator, Magisk / rootAVD, ADB, Frida / frida-server, das ThingClips/Tuya-SDK, TinyTuya sowie Home-Assistant-Debug-Logs und praktische Funktionstests am eigenen Gerät verwendet.
+## Network requirements
 
-Die Integration basiert **nicht auf einer offiziellen API oder offiziellen Protokolldokumentation von Olimpia Splendid**. Es werden keine APK-Dateien oder proprietären Herstellerdateien mit diesem Projekt verteilt.
+Home Assistant must be able to reach the air conditioner over the local network. Because the integration currently addresses the unit by host/IP, a **DHCP reservation** is recommended to prevent address changes.
 
-## Vorarbeiten und Danksagung
+The integration is designed for local operation. Loss of internet connectivity does not by itself prevent Home Assistant from communicating with an already configured device, provided that the local network remains operational and the stored Tuya credentials remain valid.
 
-Ein wichtiger Ausgangspunkt und eine Referenz war die vorhandene Home-Assistant-Integration von **Daneel87 / Davide Melle**. Auf dem für dieses Projekt verwendeten UNICO EVO 25 HP PVAN (02455) konnte diese vorhandene Integration jedoch keine funktionierende Kommunikation herstellen, weshalb die Untersuchung unabhängig weitergeführt wurde.
+## Development and reverse-engineering methodology
 
-Repository der Vorarbeit: `Daneel87/ha-olimpia-splendid-unico` auf GitHub. Hinweise zu übernommenen bzw. als Referenz verwendeten Drittarbeiten und deren Lizenz befinden sich in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+This integration was developed as an independent interoperability project. It does **not** use an official Olimpia Splendid API or official protocol documentation.
 
-## Geplante BLE-Einrichtung
+The investigation combined several forms of empirical analysis:
 
-Der größte derzeitige Nachteil ist die manuelle Ermittlung von Device ID und Local Key. Langfristig soll geprüft werden, ob BLE-Erkennung und Provisionierung direkt aus Home Assistant möglich sind. Diese BLE-basierte Einrichtung ist **noch nicht implementiert**.
+- runtime observation of the **OS Home** Android application;
+- Android Studio / Android Emulator;
+- Magisk / rootAVD and ADB;
+- Frida / frida-server for runtime inspection;
+- observation of ThingClips/Tuya SDK objects on the developer's own account and device;
+- TinyTuya-based local communication experiments;
+- Home Assistant debug logging;
+- controlled functional tests on the physical reference unit.
 
-## Diagnose-DPS
+The analysis and implementation were developed iteratively with assistance from **ChatGPT**. Technical claims in this repository are intended to reflect observed behavior, source-code inspection of this project, and reproducible device tests rather than manufacturer documentation.
 
-| DP | Entitätsname | Einheit | Status |
-|---:|---|---|---|
-| 101 | Außen-/Ansauglufttemperatur (DP101, unsicher) | °C | unsicher |
-| 102 | Innenwärmetauschertemperatur (DP102) | °C | hohe Sicherheit |
-| 103 | Außenwärmetauschertemperatur (DP103) | °C | hohe Sicherheit |
-| 104 | Kompressor-/Heißgastemperatur (DP104, unsicher) | °C | unsicher |
-| 105 | Kompressorfrequenz (DP105) | Hz | sehr hohe Sicherheit |
-| 107 | Expansionsventil-Position (DP107, unsicher) | steps | unsicher |
-| 110 | Innenlüfterdrehzahl (DP110) | rpm | sehr hohe Sicherheit |
-| 111 | Außenlüfterdrehzahl (DP111, unsicher) | rpm | wahrscheinlich |
-| 115 | Diagnosewert DP115 (unbekannt) | – | unbekannt |
-| 117 | Diagnosewert DP117 (unbekannt) | – | unbekannt |
+No Olimpia Splendid APK, manufacturer source code, account credentials, device keys, or other proprietary manufacturer files are distributed with this repository.
 
-## Bekannte Grenzen
+The credential-extraction instructions are intended exclusively for devices and accounts that the user is authorized to access.
 
-- bisher nur ein Gerätemodell intensiv getestet
-- Device ID und Local Key müssen noch manuell ermittelt werden
-- BLE-Onboarding noch nicht implementiert
-- keine offizielle Hersteller-API
-- interne Diagnose-DPS teilweise noch nicht eindeutig zugeordnet
+## Internal diagnostic datapoints
 
-## Disclaimer
+Several higher-numbered datapoints expose values that appear to describe internal thermodynamic or actuator state. Their semantics have not been documented by Olimpia Splendid for this project. The assignments below are therefore empirical interpretations and are explicitly confidence-rated.
 
-This is an unofficial, community-developed Home Assistant integration and is not affiliated with, endorsed by, or supported by Olimpia Splendid.
+| DP | Current interpretation | Unit | Confidence |
+|---:|---|---:|---|
+| 101 | Outdoor / intake-air temperature | °C | Low |
+| 102 | Indoor heat-exchanger temperature | °C | High |
+| 103 | Outdoor heat-exchanger temperature | °C | High |
+| 104 | Compressor / discharge-gas temperature | °C | Low |
+| 105 | Compressor frequency | Hz | Very high |
+| 107 | Expansion-valve position | steps | Low |
+| 110 | Indoor-fan speed | rpm | Very high |
+| 111 | Outdoor-fan speed | rpm | Moderate |
+| 115 | Unidentified diagnostic value | — | Unknown |
+| 117 | Unidentified diagnostic value | — | Unknown |
 
-The integration was developed through independent analysis and reverse engineering of communication used by the official OS Home application, with the goal of achieving interoperability and local control of the user's own device. Users are responsible for ensuring that their use of the reverse-engineering instructions complies with applicable law and with any terms applicable to software or services they use.
+These assignments should not be used for safety-critical control. Further controlled measurements across operating states are required before the lower-confidence interpretations can be considered established.
 
-No source code, APK files, credentials, device keys, or other proprietary files from Olimpia Splendid are distributed with this project. Users are responsible for obtaining and using credentials only for devices and accounts they are authorized to access.
+## Known limitations
 
-This software is provided without warranty. Use it at your own risk. Product names, company names, trademarks, and logos belong to their respective rights holders and are used only for identification and compatibility-description purposes.
+- Extensive validation currently exists for only one physical device model.
+- Device ID and Local Key acquisition is still a manual, technically demanding process.
+- BLE-based discovery and provisioning are not implemented.
+- The project depends on an undocumented local protocol and may therefore be affected by future firmware, application, or platform changes.
+- Several internal diagnostic datapoints remain only partially interpreted.
+- Compatibility with other OS Home-based UNICO models remains to be demonstrated experimentally.
 
-## Lizenz und Markenhinweis
+## Research and development priorities
 
-Der in diesem Repository entwickelte Quellcode steht unter der **MIT License**. Siehe [`LICENSE`](LICENSE). Die Projektlizenz gewährt **keine Rechte an Marken, Logos, Produktnamen oder sonstigen Kennzeichen Dritter**. Hinweise und Lizenztexte zu Drittarbeiten befinden sich in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+The principal open questions are:
 
-**Olimpia Splendid**, **UNICO**, **OS Home** und weitere genannte Produkt- oder Markennamen sind Marken bzw. Kennzeichen ihrer jeweiligen Rechteinhaber. Ihre Nennung dient ausschließlich der Beschreibung der Kompatibilität dieses unabhängigen Projekts. Das Repository verwendet bewusst **kein offizielles Olimpia-Splendid-Logo**; das enthaltene HVAC-Symbol ist ein eigenständig erstelltes, neutrales Projekt-Icon.
+1. whether BLE discovery and provisioning can be implemented directly in Home Assistant, removing the need for Frida-based credential retrieval for normal users;
+2. which additional UNICO EVO, NEXT, PRO, and VERTICAL variants implement a sufficiently compatible Tuya datapoint schema;
+3. whether the tentative internal diagnostic datapoint assignments can be confirmed through controlled multi-state measurements;
+4. whether protocol differences exist between firmware or Wi-Fi-module revisions within the same commercial model family.
+
+Reports from additional devices are particularly useful when they include the exact commercial model designation, internal product code if available, Home Assistant version, integration version, and carefully redacted diagnostic observations.
+
+## Related work and attribution
+
+An important reference during the initial investigation was the existing Home Assistant integration by **Daneel87 / Davide Melle**, [`Daneel87/ha-olimpia-splendid-unico`](https://github.com/Daneel87/ha-olimpia-splendid-unico). That implementation did not establish working communication with the project's reference UNICO EVO 25 HP PVAN (02455), which led to the independent Tuya LAN investigation used here.
+
+Third-party acknowledgements and applicable license notices are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+## License, trademarks, and disclaimer
+
+The source code developed in this repository is released under the **MIT License**; see [`LICENSE`](LICENSE). The project license does not grant rights to third-party trademarks, logos, product names, or other protected identifiers.
+
+**Olimpia Splendid**, **UNICO**, **OS Home**, and other product or company names referenced in this repository are the property of their respective rights holders. They are used solely to identify the products and software with which this independent project is intended to interoperate. The repository does not use the official Olimpia Splendid logo; the included HVAC symbol is an independently created neutral project icon.
+
+This software is provided without warranty. Use it at your own risk. Users are responsible for ensuring that their use of reverse-engineering procedures, credentials, software, and devices complies with the laws and contractual terms applicable to them.
+
+This project is not affiliated with, endorsed by, or supported by Olimpia Splendid S.p.A.
