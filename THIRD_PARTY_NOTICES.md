@@ -73,3 +73,8 @@ SOFTWARE.
 ```
 
 The TinyTuya project and its authors are not affiliated with or responsible for this integration.
+
+
+## UNICO-Key-Helfer
+
+The experimental helper uses externally installed Frida/frida-tools and does not redistribute their binaries. See [helper notices](tools/unico-key-helper/THIRD_PARTY_NOTICES.md). Its own code is covered by the repository MIT license.

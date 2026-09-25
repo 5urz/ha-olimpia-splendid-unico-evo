@@ -3,8 +3,6 @@ name: Validate
 on:
   push:
   pull_request:
-  schedule:
-    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -81,3 +79,26 @@ jobs:
           persist-credentials: false
       - name: Hassfest validation
         uses: home-assistant/actions/hassfest@a7c616ce81ccda50150bf1595786c71b1883fabb
+
+
+  validate-key-helper:
+    name: Experimental key helper tests
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: tools/unico-key-helper
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Python tests with synthetic subprocesses
+        run: python -m unittest discover -s tests -v
+      - name: Reader scenarios
+        run: node tests/test_reader.cjs
+      - name: Python syntax
+        run: python -m py_compile helper.py
+      - name: JavaScript syntax
+        run: node --check reader.js
