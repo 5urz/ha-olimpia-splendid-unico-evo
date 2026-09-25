@@ -1,5 +1,7 @@
 # Research Record — Olimpia Splendid UNICO Local Integration
 
+> Update 2026-09-25: development is paused. Read the [current handover](docs/PROJEKTUEBERGABE.md) before using this historical research record. Helper 0.1.1 has now succeeded through HA setup on the known tablet; 0.1.2 is locally tested only. Detailed historical hypotheses are not a validated BLE onboarding implementation.
+
 This document records the empirical research underlying the `ha-olimpia-splendid-unico-evo` Home Assistant integration. Its purpose is to separate **observation**, **interpretation**, and **implementation choice** as clearly as possible, so that technical conclusions remain reviewable and reproducible as additional devices and firmware versions are tested.
 
 The document is intentionally written as an engineering research log rather than as user documentation. User-facing setup and installation instructions remain in [`README.md`](README.md) and [`docs/GETTING_KEYS.md`](docs/GETTING_KEYS.md).
@@ -477,3 +479,4 @@ This project is an engineering reverse-engineering effort, not a formal laborato
 Confidence labels therefore describe the strength of the project's current empirical evidence; they do not imply statistical significance, certification, manufacturer approval, or safety validation.
 
 The correct response to contradictory data is to revise the interpretation, not to force new observations into an existing model.
+

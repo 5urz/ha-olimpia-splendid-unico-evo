@@ -9,6 +9,11 @@ The implementation has been empirically validated on an **Olimpia Splendid UNICO
 
 ## Project status
 
+**Development paused as of 2026-09-25.** This repository remains available for reference and forks; ongoing maintenance, support and new onboarding features are not promised. The Home Assistant integration remains at 0.4.9.
+
+The latest [project handover](docs/PROJEKTUEBERGABE.md) records the outcomes and restart path. The [UNICO-Key-Helfer 0.1.2](tools/unico-key-helper/README.md) is published as an experimental source snapshot. Version 0.1.1 successfully read one device on the maintainer's SM-T585 setup, followed by successful HA setup; 0.1.2's manual read trigger has only been tested locally, not yet on the tablet.
+
+
 The integration is currently a **public beta**. Its core climate-control functions are operational on the reference device, but the project should still be considered experimental outside that tested configuration.
 
 | Parameter | Current project state |
@@ -108,7 +113,7 @@ Local Tuya communication requires three device-specific values:
 2. the **Tuya Device ID**;
 3. the **Tuya Local Key**.
 
-The Device ID and Local Key currently have to be obtained by the user. The procedure used during development is documented in [`docs/GETTING_KEYS.md`](docs/GETTING_KEYS.md), and the associated experimental Frida helper is provided as [`tools/oshome_key.js`](tools/oshome_key.js).
+The Device ID and Local Key currently have to be obtained by the user. The procedure used during development is documented in [`docs/GETTING_KEYS.md`](docs/GETTING_KEYS.md), with the current experimental Windows helper in [`tools/unico-key-helper/`](tools/unico-key-helper/README.md). The older [`tools/oshome_key.js`](tools/oshome_key.js) is retained as a historical console script.
 
 > [!WARNING]
 > Treat the **Local Key as a device credential**. Do not publish Local Keys, Device IDs, account credentials, tokens, or unreviewed debug logs in GitHub issues, screenshots, forum posts, or other public material.
@@ -213,6 +218,8 @@ These assignments should not be used for safety-critical control. Further contro
 
 ## Research and development priorities
 
+The following are possible future work, not an active roadmap or delivery commitment.
+
 The principal open questions are:
 
 1. whether BLE discovery and provisioning can be implemented directly in Home Assistant, removing the need for Frida-based credential retrieval for normal users;
@@ -237,3 +244,4 @@ The source code developed in this repository is released under the **MIT License
 This software is provided without warranty. Use it at your own risk. Users are responsible for ensuring that their use of reverse-engineering procedures, credentials, software, and devices complies with the laws and contractual terms applicable to them.
 
 This project is not affiliated with, endorsed by, or supported by Olimpia Splendid S.p.A.
+

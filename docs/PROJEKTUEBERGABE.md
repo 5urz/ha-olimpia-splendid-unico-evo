@@ -1,70 +1,76 @@
-# UNICO EVO / Home Assistant – Projektübergabe und bisherige Ansätze
+# Projektabschluss und Wiederaufnahme – Stand 25.09.2026
 
-Stand: 19. September 2026; technischer Erkenntnisstand vom 18. September 2026.
+**Die Entwicklung ruht.** Das Repository bleibt als unabhängiges Community-Projekt, Dokumentation und Ausgangspunkt für Forks verfügbar. Regelmäßige Wartung, Antworten oder neue Funktionen werden nicht zugesagt.
 
-Dieses unabhängige Community-Projekt sucht Mitwirkende, die die vorhandene lokale Integration pflegen, weitere Geräte testen oder den Zugang zu den benötigten Geräteschlüsseln vereinfachen möchten. Es besteht keine Verbindung zum Hersteller und keine Unterstützung oder Freigabe durch ihn.
+## Erreichtes Ergebnis
 
-Repository: [ha-olimpia-splendid-unico-evo](https://github.com/5urz/ha-olimpia-splendid-unico-evo). Die bestehende Integration ist öffentlich und unter MIT lizenziert. Forks und Weiterentwicklung sind unter den dortigen Lizenzbedingungen möglich. Diese Übergabe überträgt weder die Repository-Verwaltung noch Rechte an fremder Software.
+Die Home-Assistant-Integration bleibt bei Version 0.4.9. Lokale Steuerung über TinyTuya 1.20.0 / Tuya LAN 3.4 ist für UNICO EVO 25 HP PVAN (02455) dokumentiert. Benötigt werden Host/IP, Device ID und Local Key. Die Integration selbst benötigt im normalen Betrieb keinen Hersteller-Cloudzugriff; dies behauptet keine vollständige Cloudfreiheit des Geräts oder seiner Ersteinrichtung.
 
-## Ergebnis und eigentliche Hürde
+Am 25.09.2026 bestätigte der Maintainer mit Helfer **0.1.1** READ_OK für ein Gerät und anschließend erfolgreiches Hinzufügen in HA. Aufbau: gerootetes Samsung SM-T585, OS Home 2.0.3, Frida 16.7.19 auf PC und Tablet, frida-tools 13.7.1. Dies ist ein Erfolg auf dem bekannten Aufbau, kein unabhängiger Nutzbarkeitstest.
 
-Die lokale Steuerung eines UNICO EVO 25 HP PVAN, Produktcode 02455, ist im Projekt dokumentiert. Home Assistant kommuniziert über TinyTuya und Tuya LAN 3.4 mit dem eingerichteten Gerät. Dafür werden Host/IP-Adresse, Device ID und Local Key benötigt. Die Integration ruft im normalen Betrieb keine Hersteller-Cloud auf. Daraus folgt nicht, dass die Klimaanlage selbst keine Internetverbindungen aufbaut.
+Der aktuelle veröffentlichte Helferquellstand **0.1.2** lässt den Nutzer den Lesezeitpunkt bestätigen. Er ist lokal geprüft, aber noch nicht erneut am Tablet getestet. Die erfolgreiche 0.1.1-Einrichtung ist kein Hardwaretest von 0.1.2.
 
-Die zentrale ungelöste Aufgabe ist die einfache, reproduzierbare Beschaffung dieser Zugangsdaten. Ein technisch funktionierender Expertenweg über die laufende OS-Home-App ist vorhanden. Eine Einrichtung für beliebige Nutzer ohne spezielle Android-Vorbereitung ist bislang nicht nachgewiesen.
+## Der entscheidende Frida-Befund
 
-Die Funktionsangaben beruhen auf dem bestehenden Repository und dokumentierten früheren Gerätetests. Für diese Übergabe wurden keine neuen Hardwaretests durchgeführt. Andere Modelle bleiben unbestätigt.
+Am SM-T585 scheiterte das Anhängen an eine laufende OS-Home-PID mit ATTACH_FAILED. Funktionierender Weg: OS Home per ADB force-stop beenden, dann über die ausgewählte Frida-Geräte-ID und den Paketnamen `com.olimpiasplendid.oshome` selbst spawnen, Reader vor Resume laden. Kein PID-Attach als Voraussetzung.
 
-## Ansätze, Ergebnisse und Gründe für den Wechsel
+0.1.1 scannte nach 20 Sekunden und beendete die Frida-Kommandozeile nach etwa 30 Sekunden. Das war für das langsame Tablet zu knapp. Trotz erfolgreichem Lesen blieb offen, ob die App später abstürzte oder beim Trennen von Frida Probleme hatte. READ_OK ist kein App-Stabilitätsnachweis.
 
-| Ansatz | Ergebnis | Grenze / Grund für das Zurückstellen |
-|---|---|---|
-| Lokale Steuerung mit TinyTuya / Tuya LAN 3.4 | Tragfähige Grundlage; Climate, Schalter und Sensoren für das Referenzmodell dokumentiert. | Weitere Modelle, längere Stabilitätstests und Wiederanlauf nach Netz-/Geräteausfällen bleiben Aufgaben. Dieser Ansatz wurde nicht aufgegeben. |
-| GitHub und HACS | Öffentliche Beta vorhanden; Installation als HACS-Custom-Repository dokumentiert. | Kein Nachweis einer Aufnahme in die HACS-Standardliste. Öffentliche Verfügbarkeit löst die Einrichtungshürde nicht. |
-| Bestehende Integration für ältere UNICO-Geräte | Hilfreich als Vergleich und Vorarbeit. | Ältere B1015-/WLAN-Plattform unterscheidet sich vom hier verwendeten Tuya-System; kein unmittelbar übertragbarer Zugang. |
-| OS Comfort / Midea-basierte Lösungen | Architekturvergleich für einmalige Einrichtung und anschließenden lokalen Betrieb. | Anderer Protokoll-/Backendpfad; keine im Projekt bestätigte Lösung für OS Home. |
-| DeviceBean-Auslesen mit Frida | Geräte-ID und Local Key konnten laut Entwicklungsdokumentation aus dem eigenen angemeldeten App-Kontext gelesen werden. | Root-/Instrumentierungsaufbau, App-Versionen und Fehlerbehebung machen den Weg für normale Nutzer aufwendig. |
-| Neuer UNICO-Key-Helfer 0.1 | Lokaler Testkandidat mit Geräteauswahl, Versionsprüfung, begrenztem Leseablauf und Kopierfeldern vorbereitet. | Automatisierte Tests mit künstlichen Daten sind dokumentiert; echter Gerätetest, erfolgreicher HA-Import und unabhängiger Nutzertest stehen aus. Root/Frida wird weiterhin vorausgesetzt. |
-| Netzwerk- und BLE-Mitschnitte; breite Laufzeit-Hooks | Transport und Teile der Abläufe wurden sichtbar. | Mehr Traces ergaben nicht automatisch einen nutzbaren Einrichtungsweg. Breite Hooks verursachten teilweise Instabilität. |
-| Android-Emulator | Für App-/Objektanalyse und den dokumentierten Schlüsselzugang hilfreich. | Der reale BLE-/WLAN-Ersteinrichtungsablauf war im damaligen Aufbau nicht reproduzierbar; hierfür wurde physische Android-Hardware verwendet. |
-| Eigenes BLE-Onboarding | Teile des Transport- und Protokollablaufs wurden beobachtet bzw. statisch rekonstruiert. | Kein vollständig eigener Ablauf vom unkonfigurierten Gerät bis zur bestätigten LAN-Steuerung nachgewiesen. Der untersuchte Herstellerablauf bezieht außerdem Cloud-Werte ein. |
-| Private OS-Home-Cloud-Aufrufe | Projektanalysen fanden zusätzliche appgebundene Signierungsabhängigkeiten neben der Benutzeranmeldung. | Kein belegter einfacher, unabhängig autorisierter Zugang ausschließlich mit Benutzerkonto/OTP. Übernahme fremder App-Geheimnisse ist kein Projektziel. |
-| Eigener Tuya-Client / eigene App | Eigener Zugang wurde untersucht. | Eigene App-Credentials vermitteln nicht automatisch Zugriff auf Geräte eines OS-Home-Kontos. |
-| Offizielles OAuth / Device Data Sharing | Offizielle Freigabemechanismen wurden untersucht. | Im getesteten OAuth-Kontext war die Ziel-App nicht freigeschaltet; ein weiterer Sharing-Test wurde vor Abschluss beendet. Nicht allgemein widerlegt, aber kein funktionierender OS-Home-Schlüsselzugang nachgewiesen. |
+0.1.2 startet denselben Spawn-Pfad, wartet auf „Seite geladen – jetzt lesen“ und beendet danach die Frida-Verbindung. Es gibt Abbruch und getrennte Start-/Warte-/Scan-Zeitlimits. Der technische Status nennt den manuellen Auslöser und das Sitzungsende, stellt aber ausdrücklich keinen überprüften App-Zustand nach dem Lesen dar.
 
-## Was bei der Fortsetzung nicht verwechselt werden darf
+## Ansätze und Grenzen
 
-- Funktionierende lokale Steuerung ist nicht gleich einfache Erstinstallation.
-- Ein gelesener Schlüssel muss durch eine echte lokale HA-Verbindung bestätigt werden.
-- Zugriff auf Geräteinformationen oder Cloud-Steuerung beweist nicht, dass ein Local Key verfügbar ist.
-- Schlüsselabruf für ein bereits bekanntes Gerät löst nicht automatisch die Erstaktivierung eines neuen Geräts.
-- Statische Analyse und synthetische Tests belegen keinen erfolgreichen Ablauf auf der Gerätefirmware.
-- Die Untersuchung mehrerer App-Versionen darf nicht zu einem vermeintlich einheitlichen Protokollstand zusammengezogen werden.
+| Ansatz | Ergebnis und Entscheidung |
+|---|---|
+| Lokale HA-Steuerung | Funktionierende Grundlage beibehalten. Climate, Eco/Silent, Swing, Display und Sensoren für ein Referenzmodell dokumentiert. |
+| Ältere UNICO/B1015-Integration | Relevante Vorarbeit, aber andere Kommunikationsplattform; am Referenzgerät kein passender Weg. |
+| OS Comfort/Midea | Architekturvergleich, kein übertragbarer OS-Home-Zugang belegt. |
+| Android-Emulator | Für Objektanalyse/älteren Schlüsselweg hilfreich; damaliges reales BLE/WLAN-Onboarding nicht reproduziert. |
+| Frida/DeviceBean | Praktischer Expertenweg; Root und Versionsabhängigkeiten bleiben die Nutzerhürde. |
+| App-Datenimport | Kein einfacher Schlüsselimport aus dem untersuchten Archiv gefunden; keine allgemeine Unmöglichkeit bewiesen. |
+| Breite Traces/Hooks | Teilweise instabil; mehr Beobachtungen ergaben nicht automatisch ein Produkt. |
+| Eigenes BLE-Onboarding | Wesentliche Teile statisch untersucht, aber kein kompletter unabhängiger Ablauf bis zur LAN-Verbindung nachgewiesen. |
+| Private Cloud-Aufrufe | Session-/appgebundene Signaturabhängigkeiten; kein einfacher autorisierter Konto/OTP-Zugang nachgewiesen. |
+| Eigene Tuya-App | Eigener Client bedeutet nicht Zugriff auf Geräte des OS-Home-Kontos. |
+| Offizielles OAuth/Data Sharing | Ziel-App im getesteten Kontext nicht freigeschaltet; weiterer Versuch vor Abschluss gestoppt. Keine generelle Unmöglichkeitsaussage. |
 
-Frühere interne Zusammenfassungen wurden durch spätere Analysen teilweise korrigiert. Insbesondere wurden Protokollzweige und bedingte Paketlängen zeitweise zu pauschal beschrieben. Die alten Arbeitsstände sind deshalb kein unverändert gültiger Implementierungsvertrag. Detaillierte, durch Dekompilierung ermittelte Spezifikationen sind nicht Bestandteil dieser öffentlichen Übergabe.
+Eine erfolgreiche Anmeldung oder Cloud-Geräteliste beweist nicht, dass der für LAN erforderliche Local Key bereitgestellt wird. Ein Schlüsselabruf für eine bekannte Device ID ist kein Nachweis eigener Erstaktivierung eines neuen Geräts.
 
-## Sinnvolle nächste Arbeiten
+## Was ältere Zusammenfassungen nicht zuverlässig abbilden
 
-1. **Vorhandene LAN-Integration stabilisieren:** Wiederanlauf bei Netzwerk-/Geräteneustarts, Langzeitbetrieb und klar abgegrenzte Kompatibilitätstests.
-2. **Schlüsselübernahme prüfen:** Den vorbereiteten Helfer am bekannten Aufbau testen, danach einen unabhängigen Nutzer ausschließlich nach Anleitung arbeiten lassen. Erfolg ist erst die bestätigte HA-Verbindung. Aufwand für Root/Frida zählt zum Gesamtaufwand.
-3. **Offiziellen Zugang klären:** Prüfen, ob eine vom Plattform-/App-Betreiber autorisierte Freigabe tatsächlich den benötigten Local Key zugänglich macht. Ein erfolgreicher Login allein reicht nicht.
-4. **Forschung begrenzen:** Weitere BLE-/Cloud-Arbeit erst mit einer konkreten überprüfbaren Frage beginnen, deren Antwort eine Produktentscheidung verändert.
+Die Forschung wechselte zwischen OS Home 2.0.3 und 2.0.7, mehreren Verbindungszweigen und unterschiedlichen Testumgebungen. Ältere pauschale Aussagen über Pair-Kommandos, Security-Flags, feste Payloadlängen und invertierte Advertising-Bits wurden durch gezielte spätere statische Analysen korrigiert. Alte Wiederanlaufdateien sind deshalb kein unverändert gültiger Implementierungsvertrag.
 
-Wenn der vereinfachte Schlüsselzugang weiterhin individuelle Android-/Frida-Betreuung benötigt, bleibt die Integration eine Expertenlösung. Ein komfortables oder vollständig cloudfreies Onboarding wird nicht zugesagt.
+Diese öffentliche Übergabe enthält bewusst keine extrahierten Originalmethoden oder detaillierten dekompilierten Protokollspezifikationen. Statische Paketbauer und synthetische Tests sind kein bestätigter eigener Geräte-Onboardingpfad.
 
-## Datenschutz und Beiträge
+## Nachweisstand und offene Aufgaben
 
-Für einen Kompatibilitätsbericht genügen zunächst Modell/Produktcode, Softwareversionen, getestete Funktionen und ein bereinigter Fehlercode. Keine Seriennummern, Geräte-IDs, Local Keys, Kontodaten, MAC-Adressen, WLAN-Namen, Tokens oder vollständigen Diagnose-/Trace-Dateien veröffentlichen. Auch stabile Hashes und verkürzte Kennungen können wiedererkennbar bleiben.
+- Referenzmodell 02455: lokale Steuerbarkeit dokumentiert. Andere EVO/NEXT/PRO/VERTICAL-Modelle bleiben Kandidaten, nicht bestätigt. Legacy-B1015 ist eine andere Plattform.
+- Diagnosedaten: DP102/103, 105 und 110 sind im Projekt stärker gestützt; DP101/104/107 bleiben Hypothesen, DP111 mäßig gestützt, DP115/117 unbekannt. Nicht für sicherheitskritische Steuerung verwenden.
+- 0.1.2: 28 Python-Tests einschließlich echter lokaler Pipes mit synthetischer CLI, 6 JavaScript-Szenarien, Syntaxprüfung bestanden. Kein neuer Tablet-/GUI-/unabhängiger Nutzertest.
+- Mehrwöchige Stabilität, Wiederanlauf nach Netz-/Geräteausfällen, Firmwareabweichungen und weitere Modelle bleiben sinnvolle nächste Arbeiten.
+- Allgemein einfacher Schlüsselzugang und vollständig cloudfreie Erstinstallation bleiben ungelöst.
 
-Das vorhandene Frida-Konsolenskript gibt Zugangsdaten aus. Seine Ausgabe ist kein öffentlich teilbares Protokoll. Der neue Helfer hält Werte lokal vor; Screenshots, Zwischenablageverlauf und Synchronisierung können sie trotzdem weitergeben. Home-Assistant-Konfiguration und Backups können die Zugangsdaten enthalten.
+## App auf einem anderen Handy
 
-Diese Übergabe enthält keine Hersteller-App, extrahierten Programmcode, echten Schlüssel, Gerätemitschnitte oder privaten Chatverläufe. Forschung ist auf eigene beziehungsweise ausdrücklich autorisierte Geräte und Konten zu beschränken.
+OS Home mit demselben Konto/Region verwenden und das bereits zugeordnete Gerät laden. Für eine reine zusätzliche Anmeldung sind keine neuen Geräte-Credentials zu erwarten; für den konkreten App-/Firmwarestand ist das keine separat getestete Garantie. Das [Herstellerhandbuch](https://www.olimpiasplendid.com/media/files/9336_264133G_OSHOME_11-2023_ML_1.pdf) unterscheidet Login und Gerätehinzufügen. Bei fehlendem Gerät zuerst Konto/Zuhause/Region prüfen, nicht neu pairen.
 
-## Einstieg für Mitwirkende
+Reset, Entfernen aus dem Konto oder erneutes Pairing vermeiden. Beim erneuten Pairing ändert sich bei Tuya der Local Key; siehe [Tuya Local](https://github.com/make-all/tuya-local/blob/main/README.md#local_key). Eine gleich gebliebene Device ID beweist keinen gleich gebliebenen Schlüssel.
 
-- [Projektbeschreibung und Installation](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/README.md)
-- [Bisheriger Forschungsbericht](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/RESEARCH.md)
-- [Bestehende Anleitung zur Schlüsselbeschaffung](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/docs/GETTING_KEYS.md)
-- [Lizenz](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/LICENSE) und [Drittanbieterhinweise](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/THIRD_PARTY_NOTICES.md)
-- [Sicherheitsmeldungen](https://github.com/5urz/ha-olimpia-splendid-unico-evo/blob/main/SECURITY.md)
+## Recht, Sicherheit und Weiterverwendung
 
-Der separate Key-Helfer 0.1 ist zum Zeitpunkt dieser Übergabe als lokaler Testkandidat vorbereitet; eine Veröffentlichung oder Verfügbarkeit im Repository wird hier nicht behauptet.
+Der eigene Projektcode steht unter MIT; [Lizenz](../LICENSE) und [Drittanbieterhinweise](../THIRD_PARTY_NOTICES.md) beachten. Namen dienen nur der Kompatibilitätsangabe, keine Herstellerfreigabe. Forschung und Helfer ausschließlich an eigenen bzw. ausdrücklich autorisierten Geräten/Konten einsetzen.
+
+Die Veröffentlichung ist eine begrenzte Auswahl eigenen Codes und neu formulierter Ergebnisse, keine Rechtsfreigabe des gesamten Forschungsbestands. Laufzeitbeobachtung und Interoperabilitätsanalyse haben gesetzliche Voraussetzungen; insbesondere ist Dekompilierung nicht mit unbeschränkter öffentlicher Weitergabe gleichzusetzen. Konkrete Verträge und Rechtsordnungen bleiben relevant: [§ 69d UrhG](https://www.gesetze-im-internet.de/urhg/__69d.html), [§ 69e UrhG](https://www.gesetze-im-internet.de/urhg/__69e.html).
+
+Keine APKs, DEX/SO, Hersteller-Code-Dumps, App-Backups, Rohlogs, privaten Chatverläufe oder echten Zugangsdaten hochladen. Helfer-Ausgaben und HA-Backups können Credentials enthalten. [Sicherheitsrichtlinie](../SECURITY.md).
+
+## Wiedereinstieg
+
+1. Funktionierende HA-Konfiguration und Credentials geschützt sichern; Gerät nicht vorsorglich zurücksetzen.
+2. Repository-/App-/Firmware-/Frida-Versionen erfassen; bestätigten Betrieb von Hypothesen trennen.
+3. Falls erforderlich, zuerst den [Helfer](../tools/unico-key-helper/README.md) in der bekannten Umgebung prüfen. Bereits funktionierende HA-Einrichtung benötigt kein erneutes Auslesen.
+4. Für allgemeine Nutzbarkeit einen unabhängigen Test einschließlich der Android-/Root-/Frida-Vorbereitung durchführen.
+5. LAN-Stabilität und Modellvalidierung priorisieren. Eine getrennte Geräte-Library/CredentialProvider-Struktur ist ein mögliches Architekturziel, kein bereits vollendetes Produkt.
+6. Neue BLE-/Cloud-Forschung nur mit konkreter begrenzter Frage und autorisiertem Zugang. Keine proprietären App-Geheimnisse in die Integration einbauen.
+
+Ausgangspunkt bleibt: **OS Home einmalig einrichten → eigene Zugangsdaten übernehmen → HA lokal betreiben.**
